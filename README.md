@@ -1,2 +1,2 @@
 # Simulation-CU-DML
-Code to replicate the simulation study in the paper "CALIBRATING DOUBLY-ROBUST ESTIMATORS WITH UNBALANCED TREATMENT ASSIGNMENT"
+Code to replicate the simulation study in the paper "Calibrating doubly-robust estimators with unbalanced treatment assignment".
