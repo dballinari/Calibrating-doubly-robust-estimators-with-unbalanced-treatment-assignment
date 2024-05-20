@@ -26,24 +26,30 @@ def tune_nuisances(y: np.ndarray, w: np.ndarray, x: np.ndarray, nfolds: int=2, u
     return hyperparameters_reg_treated, hyperparameters_reg_not_treated, hyperparameters_propensity
 
 def _cv_regression(x: np.ndarray, y: np.ndarray, nfolds: int, **kwargs) -> Tuple[int, int]:
+    # Parallelize only the grid search, not the random forest itself
+    n_jobs = kwargs.pop('n_jobs', -1)
     estimator = RandomForestRegressor(**kwargs)
     param_grid = {
         'max_depth': MAX_DEPTH_RANGE,
         'min_samples_leaf': MIN_SAMPLES_LEAF_RANGE,
     }
-    grid = GridSearchCV(estimator, param_grid, cv=nfolds, n_jobs=kwargs.get('n_jobs', -1))
+    grid = GridSearchCV(estimator, param_grid, cv=nfolds, n_jobs=n_jobs)
     grid.fit(x, y)
-    return grid.best_params_['min_samples_leaf'], grid.best_params_['max_depth']
+    best_params = grid.best_params_
+    return best_params['min_samples_leaf'], best_params['max_depth']
 
 def _cv_classification(x: np.ndarray, w: np.ndarray, nfolds: int, **kwargs) -> Tuple[int, int]:
+    # Parallelize only the grid search, not the random forest itself
+    n_jobs = kwargs.pop('n_jobs', -1)
     estimator = RandomForestClassifier(**kwargs)
     param_grid = {
         'max_depth': MAX_DEPTH_RANGE,
         'min_samples_leaf': MIN_SAMPLES_LEAF_RANGE,
     }
-    grid = GridSearchCV(estimator, param_grid, cv=nfolds, n_jobs=kwargs.get('n_jobs', -1))
+    grid = GridSearchCV(estimator, param_grid, cv=nfolds, n_jobs=n_jobs)
     grid.fit(x, w)
-    return grid.best_params_['min_samples_leaf'], grid.best_params_['max_depth']
+    best_params = grid.best_params_
+    return best_params['min_samples_leaf'], best_params['max_depth']
 
 def _get_mean_and_variance(x: np.ndarray) -> Tuple[float, float]:
     return (np.nanmean(x), np.nanvar(x)/np.sum(~np.isnan(x)))
